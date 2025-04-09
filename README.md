@@ -1,0 +1,2 @@
+MentalVibes is a AI powered web application designed to promote emotional and mental well-being. This project provides a calming environment with soothing music, helpful resources, user reviews, and an AI chatbot for additional support.
+Acknowledgement: As a first time creator and a student I took help from different sites like I made the chatbot from "Zapier" and took help in HTML code from "ChatGPT".
