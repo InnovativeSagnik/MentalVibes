@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentalVibes</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet"> <!-- Added signature font -->
   <style>
     body {
       margin: 0;
@@ -27,15 +27,15 @@
     }
 
     h1 {
-      color: #4c6e72;
+      color: #4c6e72; /* Soft teal */
       font-size: 2.5rem;
     }
 
     p {
-      color: #6c8b8f;
+      color: #6c8b8f; /* Soft grayish teal */
     }
 
-    .resources, .reviews-section {
+    .resources {
       background: rgba(255, 255, 255, 0.85);
       margin: 2rem auto;
       padding: 2rem;
@@ -70,13 +70,22 @@
       background: #e1f0f1;
     }
 
+    .reviews-section {
+      background: rgba(255, 255, 255, 0.85);
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      width: 80%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
     .review {
       margin: 1rem 0;
       text-align: left;
     }
 
     .stars {
-      color: #ffcd38;
+      color: #ffcd38; /* Soft golden yellow */
     }
 
     .submit-review input, .submit-review textarea, .submit-review button, .submit-review select {
@@ -89,7 +98,7 @@
     }
 
     .rating-bar {
-      background-color: #e1f0f1;
+      background-color: #e1f0f1; /* Light soft blue */
       height: 20px;
       border-radius: 10px;
       margin: 5px 0;
@@ -100,7 +109,15 @@
       display: block;
       height: 100%;
       border-radius: 10px;
-      background-color: #77c8a1;
+    }
+
+    .rating-display {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .rating-bar span {
+      background-color: #77c8a1; /* Soft green */
     }
 
     .rating-bar-container {
@@ -128,7 +145,12 @@
     }
 
     button:hover {
-      background-color: #63a78d;
+      background-color: #63a78d; /* Slightly darker green on hover */
+    }
+
+    @font-face {
+      font-family: 'Chiller';
+      src: url('https://fonts.googleapis.com/css2?family=Chiller&display=swap');
     }
 
     footer p {
@@ -174,13 +196,11 @@
     </div>
   </div>
 
-  <!-- Chatbot Embed -->
   <div class="chatbot-container" id="chatbotContainer">
     <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
     <zapier-interfaces-chatbot-embed is-popup='true' chatbot-id='cm99clg70007716o7mauyu3yb' id="chatbot"></zapier-interfaces-chatbot-embed>
   </div>
 
-  <!-- Audio Player -->
   <div class="audio-control">
     <audio id="peaceAudio" loop>
       <source src="please-calm-my-mind-125566.mp3" type="audio/mpeg">
@@ -193,7 +213,6 @@
     <p>@Sagnik Pramanik</p>
   </footer>
 
-  <!-- ✅ Fixed Audio Script -->
   <script>
     const audio = document.getElementById("peaceAudio");
     const slider = document.getElementById("volumeSlider");
@@ -206,19 +225,16 @@
       audio.volume = slider.value;
     });
 
-    // Enable audio after any user interaction
+    // Enable audio after user interaction
     const enableAudio = () => {
       if (audio.paused) {
-        audio.play().then(() => {
-          console.log("Audio started");
-        }).catch((err) => {
-          console.warn("Audio couldn't start:", err);
+        audio.play().catch((error) => {
+          console.error("Audio playback failed:", error);
         });
       }
     };
 
-    // Attach once on click, touch, or keydown
-    ["click", "touchstart", "keydown"].forEach(evt =>
+    ["click", "keydown", "touchstart"].forEach(evt =>
       document.body.addEventListener(evt, enableAudio, { once: true })
     );
   </script>
