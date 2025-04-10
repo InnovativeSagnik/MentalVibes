@@ -202,50 +202,33 @@
   </footer>
 
   <script>
-    const audio = document.getElementById("peaceAudio");
-    const slider = document.getElementById("volumeSlider");
+  const audio = document.getElementById("peaceAudio");
+  const slider = document.getElementById("volumeSlider");
 
-    slider.addEventListener("input", () => {
-      audio.volume = slider.value;
-    });
+  // Set initial volume
+  audio.volume = slider.value;
 
-    // Set initial volume
+  // Update volume on slider input
+  slider.addEventListener("input", () => {
     audio.volume = slider.value;
+  });
 
-    // Play audio after user interaction
-    document.addEventListener("click", () => {
-      if (audio.paused) {
-        audio.play().catch(console.error);
-      }
-    });
+  // Try to autoplay when page is ready (some browsers block it unless muted)
+  window.addEventListener("load", () => {
+    const tryPlay = () => {
+      audio.play().catch(() => {
+        // If autoplay fails, wait for first user interaction
+        document.body.addEventListener("click", () => {
+          if (audio.paused) {
+            audio.play().catch(console.error);
+          }
+        }, { once: true });
+      });
+    };
 
-    // Simple rating simulation (You can hook this up to your review logic)
-    function submitReview() {
-      const rating = parseInt(document.getElementById("rating").value);
-      if (!rating || rating < 1 || rating > 5) return;
-      
-      const current = parseInt(document.getElementById(`count-${rating}`).textContent) || 0;
-      document.getElementById(`count-${rating}`).textContent = current + 1;
-
-      let total = 0, sum = 0;
-      for (let i = 1; i <= 5; i++) {
-        const count = parseInt(document.getElementById(`count-${i}`).textContent) || 0;
-        sum += i * count;
-        total += count;
-      }
-
-      const avg = (sum / total).toFixed(1);
-      document.getElementById("average-rating").textContent = avg;
-      document.getElementById("total-reviews").textContent = total;
-
-      for (let i = 1; i <= 5; i++) {
-        const count = parseInt(document.getElementById(`count-${i}`).textContent) || 0;
-        const width = total ? ((count / total) * 100).toFixed(1) + '%' : '0%';
-        document.getElementById(`bar-${i}`).style.width = width;
-      }
-
-      document.getElementById("comment").value = "";
-    }
-  </script>
+    // Delay slightly to improve success on some browsers
+    setTimeout(tryPlay, 500);
+  });
+</script>
 </body>
 </html>
