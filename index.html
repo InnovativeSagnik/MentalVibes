@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentalVibes</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet"> <!-- Added signature font -->
   <style>
     body {
       margin: 0;
@@ -154,7 +155,7 @@
     }
 
     footer p {
-      font-family: 'Chiller', sans-serif;
+      font-family: 'Sacramento', cursive; /* Changed to signature font */
       font-size: 2rem;
     }
   </style>
@@ -206,7 +207,7 @@
 
   <!-- Audio Player -->
   <div class="audio-control">
-    <audio id="peaceAudio" autoplay loop>
+    <audio id="peaceAudio" loop>
       <source src="please-calm-my-mind-125566.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
@@ -218,92 +219,31 @@
   </footer>
 
   <script>
-    // Clear rating history (remove stored reviews in localStorage)
-    localStorage.removeItem("reviews");
-
+    // Get the audio and volume slider elements
     const audio = document.getElementById("peaceAudio");
     const slider = document.getElementById("volumeSlider");
-    const reviewsContainer = document.getElementById("reviews");
-    const averageRatingElement = document.getElementById("average-rating");
-    const ratingBarsElement = document.getElementById("rating-bars");
 
+    // Set up volume control
     slider.addEventListener("input", () => {
       audio.volume = slider.value;
     });
 
+    // Play audio after user interaction (e.g., after page load or click)
     window.addEventListener("load", () => {
-      setTimeout(() => {
-        audio.volume = slider.value;
-        audio.play();
-      }, 2000);
-    });
-
-    function submitReview() {
-      const user = document.getElementById("username").value.trim();
-      const rating = document.getElementById("rating").value;
-      const comment = document.getElementById("comment").value.trim();
-
-      if (!user) {
-        return alert("Please fill in your name before submitting.");
-      }
-
-      if (!rating && !comment) {
-        return alert("Please fill in your rating or comment.");
-      }
-
-      const review = { user, rating, comment };
-      let reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
-      reviews.push(review);
-      localStorage.setItem("reviews", JSON.stringify(reviews));
-
-      displayReview(review);
-      updateRatingStats();
-
-      document.getElementById("username").value = "";
-      document.getElementById("rating").value = "";
-      document.getElementById("comment").value = "";
-    }
-
-    function displayReview({ user, rating, comment }) {
-      const div = document.createElement("div");
-      div.className = "review";
-      div.innerHTML = `<strong>${user}</strong> <span class="stars">${'⭐'.repeat(rating)}</span><br>${comment}`;
-      reviewsContainer.appendChild(div);
-    }
-
-    function updateRatingStats() {
-      let reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
-
-      let totalRating = 0;
-      const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-      reviews.forEach(({ rating }) => {
-        totalRating += parseInt(rating);
-        ratingCounts[rating]++;
+      // Ensure that the audio starts only after user interaction if required
+      audio.play().catch((error) => {
+        console.error('Autoplay failed:', error);
       });
-
-      const averageRating = totalRating / reviews.length || 0;
-      averageRatingElement.textContent = averageRating.toFixed(1);
-
-      // Update the rating bars
-      ratingBarsElement.innerHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        const ratingBar = document.createElement("div");
-        ratingBar.className = "rating-bar";
-        const percentage = (ratingCounts[i] / reviews.length) * 100;
-        ratingBar.innerHTML = `<span style="width: ${percentage}%;"></span>`;
-        
-        const label = document.createElement("span");
-        label.className = "rating-label";
-        label.textContent = i;
-
-        ratingBar.appendChild(label);
-        ratingBarsElement.appendChild(ratingBar);
+    });
+    
+    // This will try to play the audio once the user interacts with the page
+    document.body.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play().catch((error) => {
+          console.error('Error playing the audio:', error);
+        });
       }
-    }
-
-    // Load reviews and update stats on page load
-    window.addEventListener("load", updateRatingStats);
+    });
   </script>
 </body>
 </html>
