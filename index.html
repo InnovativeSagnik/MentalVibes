@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentalVibes</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet"> <!-- Added signature font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -27,15 +27,15 @@
     }
 
     h1 {
-      color: #4c6e72; /* Soft teal */
+      color: #4c6e72;
       font-size: 2.5rem;
     }
 
     p {
-      color: #6c8b8f; /* Soft grayish teal */
+      color: #6c8b8f;
     }
 
-    .resources {
+    .resources, .reviews-section {
       background: rgba(255, 255, 255, 0.85);
       margin: 2rem auto;
       padding: 2rem;
@@ -70,24 +70,6 @@
       background: #e1f0f1;
     }
 
-    .reviews-section {
-      background: rgba(255, 255, 255, 0.85);
-      margin: 2rem auto;
-      padding: 2rem;
-      border-radius: 1rem;
-      width: 80%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .review {
-      margin: 1rem 0;
-      text-align: left;
-    }
-
-    .stars {
-      color: #ffcd38; /* Soft golden yellow */
-    }
-
     .submit-review input, .submit-review textarea, .submit-review button, .submit-review select {
       display: block;
       width: 100%;
@@ -97,41 +79,43 @@
       border: 1px solid #ccc;
     }
 
+    .rating-display {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .rating-row {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      gap: 10px;
+    }
+
+    .star-label {
+      width: 50px;
+      text-align: right;
+      font-weight: bold;
+      color: #4c6e72;
+    }
+
     .rating-bar {
-      background-color: #e1f0f1; /* Light soft blue */
-      height: 20px;
+      background-color: #e1f0f1;
+      flex-grow: 1;
+      height: 15px;
       border-radius: 10px;
-      margin: 5px 0;
+      overflow: hidden;
       position: relative;
     }
 
     .rating-bar span {
       display: block;
       height: 100%;
-      border-radius: 10px;
+      background-color: #77c8a1;
     }
 
-    .rating-display {
-      margin-top: 2rem;
-      text-align: center;
-    }
-
-    .rating-bar span {
-      background-color: #77c8a1; /* Soft green */
-    }
-
-    .rating-bar-container {
-      width: 80%;
-      margin: 0 auto;
-    }
-
-    .rating-label {
-      position: absolute;
-      left: -30px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-weight: bold;
-      color: #4c6e72;
+    .rating-count {
+      width: 30px;
+      text-align: left;
     }
 
     button {
@@ -145,12 +129,7 @@
     }
 
     button:hover {
-      background-color: #63a78d; /* Slightly darker green on hover */
-    }
-
-    @font-face {
-      font-family: 'Chiller';
-      src: url('https://fonts.googleapis.com/css2?family=Chiller&display=swap');
+      background-color: #63a78d;
     }
 
     footer p {
@@ -191,8 +170,17 @@
     <div id="reviews"></div>
 
     <div class="rating-display">
-      <h3>Average Rating: <span id="average-rating">0</span> Stars</h3>
-      <div class="rating-bar-container" id="rating-bars"></div>
+      <h3 style="font-size: 2.5rem; color: #4c6e72;">
+        <span id="average-rating">0.0</span> ★
+      </h3>
+      <p style="color: #6c8b8f;">Based on <span id="total-reviews">0</span> reviews</p>
+      <div class="rating-bar-container">
+        <div class="rating-row"><span class="star-label">5 ★</span><div class="rating-bar"><span id="bar-5" style="width: 0%;"></span></div><span id="count-5" class="rating-count">0</span></div>
+        <div class="rating-row"><span class="star-label">4 ★</span><div class="rating-bar"><span id="bar-4" style="width: 0%;"></span></div><span id="count-4" class="rating-count">0</span></div>
+        <div class="rating-row"><span class="star-label">3 ★</span><div class="rating-bar"><span id="bar-3" style="width: 0%;"></span></div><span id="count-3" class="rating-count">0</span></div>
+        <div class="rating-row"><span class="star-label">2 ★</span><div class="rating-bar"><span id="bar-2" style="width: 0%;"></span></div><span id="count-2" class="rating-count">0</span></div>
+        <div class="rating-row"><span class="star-label">1 ★</span><div class="rating-bar"><span id="bar-1" style="width: 0%;"></span></div><span id="count-1" class="rating-count">0</span></div>
+      </div>
     </div>
   </div>
 
@@ -217,26 +205,47 @@
     const audio = document.getElementById("peaceAudio");
     const slider = document.getElementById("volumeSlider");
 
-    // Set initial volume
-    audio.volume = slider.value;
-
-    // Volume slider control
     slider.addEventListener("input", () => {
       audio.volume = slider.value;
     });
 
-    // Enable audio after user interaction
-    const enableAudio = () => {
-      if (audio.paused) {
-        audio.play().catch((error) => {
-          console.error("Audio playback failed:", error);
-        });
-      }
-    };
+    // Set initial volume
+    audio.volume = slider.value;
 
-    ["click", "keydown", "touchstart"].forEach(evt =>
-      document.body.addEventListener(evt, enableAudio, { once: true })
-    );
+    // Play audio after user interaction
+    document.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play().catch(console.error);
+      }
+    });
+
+    // Simple rating simulation (You can hook this up to your review logic)
+    function submitReview() {
+      const rating = parseInt(document.getElementById("rating").value);
+      if (!rating || rating < 1 || rating > 5) return;
+      
+      const current = parseInt(document.getElementById(`count-${rating}`).textContent) || 0;
+      document.getElementById(`count-${rating}`).textContent = current + 1;
+
+      let total = 0, sum = 0;
+      for (let i = 1; i <= 5; i++) {
+        const count = parseInt(document.getElementById(`count-${i}`).textContent) || 0;
+        sum += i * count;
+        total += count;
+      }
+
+      const avg = (sum / total).toFixed(1);
+      document.getElementById("average-rating").textContent = avg;
+      document.getElementById("total-reviews").textContent = total;
+
+      for (let i = 1; i <= 5; i++) {
+        const count = parseInt(document.getElementById(`count-${i}`).textContent) || 0;
+        const width = total ? ((count / total) * 100).toFixed(1) + '%' : '0%';
+        document.getElementById(`bar-${i}`).style.width = width;
+      }
+
+      document.getElementById("comment").value = "";
+    }
   </script>
 </body>
 </html>
