@@ -53,16 +53,7 @@
     }
 
     .audio-control {
-      position: fixed;
-      top: 50%;
-      left: 0;
-      transform: translateY(-50%);
-      writing-mode: vertical-rl;
-      text-align: center;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 0 1rem 1rem 0;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      display: none;
     }
 
     input[type=range] {
@@ -136,14 +127,117 @@
       font-family: 'Sacramento', cursive;
       font-size: 2rem;
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 80%;
+    }
+
+    .modal-close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover,
+    .modal-close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* === NEW FEATURES STYLES === */
+    .quote-box, .mood-tracker {
+      background: rgba(255, 255, 255, 0.85);
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      width: 80%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      color: #4c6e72;
+    }
+
+    .mood-tracker select {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .journal-button {
+      position: fixed;
+      bottom: 160px;
+      right: 70px;
+      z-index: 9999;
+      background-color: #77c8a1;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #journalModal textarea {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+    }
+
+    #journalModal button {
+      background-color: #77c8a1;
+      color: #fff;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
-<header>
-  <img src="MentalVibes_Logo_Resized_Under1MB.png" alt="MentalVibes Logo" style="max-height: 100px; margin-bottom: 1rem;">
-  <h1>Welcome to MentalVibes</h1>
-  <p>Your AI-powered companion for emotional and mental well-being. Created with care by <strong>Sagnik Pramanik</strong>.</p>
-</header>
+  <header>
+    <img src="MentalVibes_Logo_Resized_Under1MB.png" alt="MentalVibes Logo" style="max-height: 100px; margin-bottom: 1rem;">
+    <h1>Welcome to MentalVibes</h1>
+    <p>Your AI-powered companion for emotional and mental well-being. Created with care by <strong>Sagnik Pramanik</strong>.</p>
+  </header>
+
+  <!-- New: Motivational Quote -->
+  <div class="quote-box" id="quoteBox">🌞 Loading your daily quote...</div>
+
+  <!-- New: Mood Tracker -->
+  <div class="mood-tracker">
+    <h3>How are you feeling today?</h3>
+    <select id="moodSelect" onchange="saveMood()">
+      <option value="">Select Mood</option>
+      <option value="😊 Happy">😊 Happy</option>
+      <option value="😔 Sad">😔 Sad</option>
+      <option value="😡 Angry">😡 Angry</option>
+      <option value="😌 Calm">😌 Calm</option>
+      <option value="😰 Anxious">😰 Anxious</option>
+    </select>
+    <p id="moodDisplay"></p>
+  </div>
+
   <div class="resources">
     <h2>Helpful Resources</h2>
     <p><strong>🌿 Breathing Exercises:</strong> Inhale 4s, Hold 4s, Exhale 4s.</p>
@@ -189,12 +283,15 @@
     <zapier-interfaces-chatbot-embed is-popup='true' chatbot-id='cm99clg70007716o7mauyu3yb' id="chatbot"></zapier-interfaces-chatbot-embed>
   </div>
 
-  <div class="audio-control">
-    <audio id="peaceAudio" loop>
-      <source src="please-calm-my-mind-125566.mp3" type="audio/mpeg">
-      Your browser does not support the audio element.
-    </audio>
-    <input type="range" min="0" max="1" step="0.01" value="0.3" id="volumeSlider">
+  <div class="journal-button" onclick="showJournal()">✍️ Journal</div>
+
+  <div id="journalModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeJournal()">&times;</span>
+      <h2>Gratitude Journal</h2>
+      <textarea id="journalEntry" rows="5" placeholder="What are you grateful for today?"></textarea>
+      <button onclick="saveJournal()">Save</button>
+    </div>
   </div>
 
   <footer>
@@ -202,33 +299,115 @@
   </footer>
 
   <script>
-  const audio = document.getElementById("peaceAudio");
-  const slider = document.getElementById("volumeSlider");
+    function submitReview() {
+      let username = document.getElementById("username").value;
+      let rating = document.getElementById("rating").value;
+      let comment = document.getElementById("comment").value;
 
-  // Set initial volume
-  audio.volume = slider.value;
+      if (!username || !rating || !comment) {
+        alert("Please fill in all fields!");
+        return;
+      }
 
-  // Update volume on slider input
-  slider.addEventListener("input", () => {
-    audio.volume = slider.value;
-  });
+      let review = {
+        username: username,
+        rating: parseInt(rating),
+        comment: comment,
+      };
 
-  // Try to autoplay when page is ready (some browsers block it unless muted)
-  window.addEventListener("load", () => {
-    const tryPlay = () => {
-      audio.play().catch(() => {
-        // If autoplay fails, wait for first user interaction
-        document.body.addEventListener("click", () => {
-          if (audio.paused) {
-            audio.play().catch(console.error);
-          }
-        }, { once: true });
+      let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+      reviews.push(review);
+      localStorage.setItem("reviews", JSON.stringify(reviews));
+
+      displayReviews();
+      updateRatingStats();
+    }
+
+    function displayReviews() {
+      let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+      let reviewsContainer = document.getElementById("reviews");
+      reviewsContainer.innerHTML = "";
+
+      reviews.forEach((review) => {
+        let reviewElement = document.createElement("div");
+        reviewElement.classList.add("review");
+        reviewElement.innerHTML = `
+          <p><strong>${review.username}</strong> - <span>${review.rating} ★</span></p>
+          <p>${review.comment}</p>
+        `;
+        reviewsContainer.appendChild(reviewElement);
       });
-    };
+    }
 
-    // Delay slightly to improve success on some browsers
-    setTimeout(tryPlay, 500);
-  });
-</script>
+    function updateRatingStats() {
+      let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+      let totalReviews = reviews.length;
+      let totalRating = 0;
+      let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+      reviews.forEach((review) => {
+        totalRating += review.rating;
+        ratingCounts[review.rating]++;
+      });
+
+      let averageRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(1) : "0.0";
+      document.getElementById("average-rating").innerText = averageRating;
+      document.getElementById("total-reviews").innerText = totalReviews;
+
+      for (let i = 1; i <= 5; i++) {
+        let bar = document.getElementById("bar-" + i);
+        let count = document.getElementById("count-" + i);
+        let percentage = totalReviews > 0 ? ((ratingCounts[i] / totalReviews) * 100).toFixed(2) : 0;
+        bar.style.width = percentage + "%";
+        count.innerText = ratingCounts[i];
+      }
+    }
+
+    function showJournal() {
+      document.getElementById("journalModal").style.display = "flex";
+    }
+
+    function closeJournal() {
+      document.getElementById("journalModal").style.display = "none";
+    }
+
+    function saveJournal() {
+      const entry = document.getElementById("journalEntry").value;
+      if (entry.trim()) {
+        alert("Journal saved. Keep shining! 🌟");
+        localStorage.setItem("gratitudeEntry", entry);
+        document.getElementById("journalEntry").value = "";
+        closeJournal();
+      } else {
+        alert("Please write something first!");
+      }
+    }
+
+    function saveMood() {
+      const mood = document.getElementById("moodSelect").value;
+      localStorage.setItem("userMood", mood);
+      document.getElementById("moodDisplay").innerText = mood ? `Current Mood: ${mood}` : "";
+    }
+
+    window.onload = function () {
+      displayReviews();
+      updateRatingStats();
+
+      const quotes = [
+        "You are stronger than you think.",
+        "Every day is a second chance.",
+        "Small steps every day lead to big changes.",
+        "You deserve peace and joy.",
+        "Let your mind rest – you've done enough today."
+      ];
+      document.getElementById("quoteBox").innerText = quotes[Math.floor(Math.random() * quotes.length)];
+
+      const savedMood = localStorage.getItem("userMood");
+      if (savedMood) {
+        document.getElementById("moodSelect").value = savedMood;
+        document.getElementById("moodDisplay").innerText = `Current Mood: ${savedMood}`;
+      }
+    };
+  </script>
 </body>
 </html>
