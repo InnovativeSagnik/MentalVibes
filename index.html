@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentalVibes</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet"> <!-- Added signature font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -27,15 +27,15 @@
     }
 
     h1 {
-      color: #4c6e72; /* Soft teal */
+      color: #4c6e72;
       font-size: 2.5rem;
     }
 
     p {
-      color: #6c8b8f; /* Soft grayish teal */
+      color: #6c8b8f;
     }
 
-    .resources {
+    .resources, .reviews-section {
       background: rgba(255, 255, 255, 0.85);
       margin: 2rem auto;
       padding: 2rem;
@@ -70,22 +70,13 @@
       background: #e1f0f1;
     }
 
-    .reviews-section {
-      background: rgba(255, 255, 255, 0.85);
-      margin: 2rem auto;
-      padding: 2rem;
-      border-radius: 1rem;
-      width: 80%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-
     .review {
       margin: 1rem 0;
       text-align: left;
     }
 
     .stars {
-      color: #ffcd38; /* Soft golden yellow */
+      color: #ffcd38;
     }
 
     .submit-review input, .submit-review textarea, .submit-review button, .submit-review select {
@@ -98,7 +89,7 @@
     }
 
     .rating-bar {
-      background-color: #e1f0f1; /* Light soft blue */
+      background-color: #e1f0f1;
       height: 20px;
       border-radius: 10px;
       margin: 5px 0;
@@ -109,15 +100,7 @@
       display: block;
       height: 100%;
       border-radius: 10px;
-    }
-
-    .rating-display {
-      margin-top: 2rem;
-      text-align: center;
-    }
-
-    .rating-bar span {
-      background-color: #77c8a1; /* Soft green */
+      background-color: #77c8a1;
     }
 
     .rating-bar-container {
@@ -145,17 +128,11 @@
     }
 
     button:hover {
-      background-color: #63a78d; /* Slightly darker green on hover */
-    }
-
-    /* Chiller Font */
-    @font-face {
-      font-family: 'Chiller';
-      src: url('https://fonts.googleapis.com/css2?family=Chiller&display=swap');
+      background-color: #63a78d;
     }
 
     footer p {
-      font-family: 'Sacramento', cursive; /* Changed to signature font */
+      font-family: 'Sacramento', cursive;
       font-size: 2rem;
     }
   </style>
@@ -173,7 +150,6 @@
     <p><strong>🌟 Sleep Tips:</strong> No screens 30 minutes before bed.</p>
   </div>
 
-  <!-- Reviews Section -->
   <div class="reviews-section">
     <h2>User Reviews</h2>
     <div class="submit-review">
@@ -192,7 +168,6 @@
 
     <div id="reviews"></div>
 
-    <!-- Average Rating and Rating Bars -->
     <div class="rating-display">
       <h3>Average Rating: <span id="average-rating">0</span> Stars</h3>
       <div class="rating-bar-container" id="rating-bars"></div>
@@ -218,32 +193,34 @@
     <p>@Sagnik Pramanik</p>
   </footer>
 
+  <!-- ✅ Fixed Audio Script -->
   <script>
-    // Get the audio and volume slider elements
     const audio = document.getElementById("peaceAudio");
     const slider = document.getElementById("volumeSlider");
 
-    // Set up volume control
+    // Set initial volume
+    audio.volume = slider.value;
+
+    // Volume slider control
     slider.addEventListener("input", () => {
       audio.volume = slider.value;
     });
 
-    // Play audio after user interaction (e.g., after page load or click)
-    window.addEventListener("load", () => {
-      // Ensure that the audio starts only after user interaction if required
-      audio.play().catch((error) => {
-        console.error('Autoplay failed:', error);
-      });
-    });
-    
-    // This will try to play the audio once the user interacts with the page
-    document.body.addEventListener("click", () => {
+    // Enable audio after any user interaction
+    const enableAudio = () => {
       if (audio.paused) {
-        audio.play().catch((error) => {
-          console.error('Error playing the audio:', error);
+        audio.play().then(() => {
+          console.log("Audio started");
+        }).catch((err) => {
+          console.warn("Audio couldn't start:", err);
         });
       }
-    });
+    };
+
+    // Attach once on click, touch, or keydown
+    ["click", "touchstart", "keydown"].forEach(evt =>
+      document.body.addEventListener(evt, enableAudio, { once: true })
+    );
   </script>
 </body>
 </html>
